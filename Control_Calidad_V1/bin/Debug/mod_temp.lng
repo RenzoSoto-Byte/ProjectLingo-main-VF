@@ -1,0 +1,40 @@
+
+MODEL:
+SETS:
+INSPECTORES /1..2/: sueldo, margen, costo_error, piezas, capacidad;
+ENDSETS
+
+DATA:
+piezas = 25 15;
+sueldo = 3 4;
+margen = 5 2;
+costo_error = 2 2;
+capacidad = 8 10;
+horas = 8;
+piezasmin = 1800;
+ENDDATA
+
+SUBMODEL CALIDAD:
+! Minimizar el costo total: sueldos + errores;
+min = (sueldo(1) + margen(1) * costo_error(1)) * i1 +
+      (sueldo(2) + margen(2) * costo_error(2)) * i2;
+
+! Restricción de piezas inspeccionadas al menos igual al mínimo requerido;
+(piezas(1) * i1 + piezas(2) * i2) * horas >= piezasmin;
+
+! Restricciones de capacidad;
+i1 <= capacidad(1);
+i2 <= capacidad(2);
+
+@GIN(i1);
+@GIN(i2);
+ENDSUBMODEL
+
+CALC:
+@SOLVE(CALIDAD);
+@DIVERT("C:\\Users\\jhonn\\Desktop\\TrabajoAbelOsiptel\\Lingo_TrabajoSoftware\\Control_Calidad_V1\\Control_Calidad_V1\\SOL.TXT");
+@WRITE('Inspectores i1 = ', i1, @NEWLINE(1));
+@WRITE('Inspectores i2 = ', i2, @NEWLINE(1));
+@DIVERT();
+ENDCALC
+END
